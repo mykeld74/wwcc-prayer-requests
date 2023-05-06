@@ -1,0 +1,9 @@
+:root {
+  --clr: #39ff14;
+}
+
+html,
+body {
+  font-family: "Quicksand", sans-serif;
+  background: #efefef;
+}
