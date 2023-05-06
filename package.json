@@ -22,6 +22,7 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "4.13.0",
+		"@sveltejs/adapter-netlify": "^2.0.7",
 		"postcss": "^8.4.23",
 		"postcss-load-config": "^4.0.1",
 		"postcss-nested": "^6.0.1",
