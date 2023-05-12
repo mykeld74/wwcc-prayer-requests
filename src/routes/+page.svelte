@@ -2,25 +2,35 @@
   import type { PageData } from "./$types";
   export let data: PageData;
 
-  let startDate = new Date(new Date().setDate(new Date().getDate() - 7))
+  interface Prayer {
+    id: number;
+    content: String;
+    createdAt: Date;
+    updatedAt: Date;
+    author: String;
+    email: String;
+    staffOnly: Boolean;
+  }
+
+  let startDate: String = new Date(new Date().setDate(new Date().getDate() - 7))
     .toISOString()
     .slice(0, 10);
-  let endDate = new Date().toISOString().slice(0, 10);
+  let endDate: String = new Date().toISOString().slice(0, 10);
   let filteredprayers = data.prayers;
 
   // function to filter based on staffOnly
-  function filterByStaff(data) {
+  function filterByStaff(data: Prayer[]) {
     return data.filter(function (a) {
       return a.staffOnly === true;
     });
   }
-  function filterForAll(data) {
+  function filterForAll(data: Prayer[]) {
     return data.filter(function (a) {
       return a.staffOnly === false;
     });
   }
   // javasript function to find items between two dates
-  function filterByDate(data, startDate, endDate) {
+  function filterByDate(data: Prayer[], startDate: String, endDate: String) {
     console.log(data, startDate, endDate);
     return data.filter(function (a) {
       const dateCreated = new Date(a.createdAt);
