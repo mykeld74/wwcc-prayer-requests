@@ -1,6 +1,10 @@
 <script lang="ts">
+  import { signIn, signOut } from "@auth/sveltekit/client";
+  import { page } from "$app/stores";
+  import { onMount } from "svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
+  let filterType: String = "showAll";
 
   interface Prayer {
     id: number;
@@ -20,26 +24,56 @@
 
   // function to filter based on staffOnly
   function filterByStaff(data: Prayer[]) {
-    return data.filter(function (a) {
+    filterType = "showStaffOnly";
+    const staffFilter = data.filter(function (a) {
       return a.staffOnly === true;
     });
+    const finaFilter = filterByDate(staffFilter, startDate, endDate);
+    return finaFilter;
   }
   function filterForAll(data: Prayer[]) {
-    return data.filter(function (a) {
+    filterType = "showAll";
+    const allPrayers = data;
+    filterByDate(allPrayers, startDate, endDate);
+    const finalFilter = filterByDate(allPrayers, startDate, endDate);
+    return finalFilter;
+  }
+  function filterForPrayerTeam(data: Prayer[]) {
+    filterType = "showPrayerTeamOnly";
+    const ptFilter = data.filter(function (a) {
       return a.staffOnly === false;
     });
+    const finalFilter = filterByDate(ptFilter, startDate, endDate);
+    return finalFilter;
   }
   // javasript function to find items between two dates
   function filterByDate(data: Prayer[], startDate: String, endDate: String) {
-    console.log(data, startDate, endDate);
     return data.filter(function (a) {
       const dateCreated = new Date(a.createdAt);
-      return (
-        dateCreated >= new Date(startDate) &&
-        dateCreated <= new Date(endDate + " 23:59:59")
-      );
+      if (filterType === "showStaffOnly") {
+        return (
+          dateCreated >= new Date(startDate) &&
+          dateCreated <= new Date(endDate + " 23:59:59") &&
+          a.staffOnly === true
+        );
+      } else if (filterType === "showPrayerTeamOnly") {
+        return (
+          dateCreated >= new Date(startDate) &&
+          dateCreated <= new Date(endDate + " 23:59:59") &&
+          a.staffOnly === false
+        );
+      } else {
+        return (
+          dateCreated >= new Date(startDate) &&
+          dateCreated <= new Date(endDate + " 23:59:59")
+        );
+      }
     });
   }
+
+  onMount(() => {
+    filteredprayers = filterByDate(data.prayers, startDate, endDate);
+  });
 </script>
 
 <div>
@@ -67,7 +101,7 @@
         <button
           class="button"
           on:click={() => {
-            filteredprayers = filterForAll(data.prayers);
+            filteredprayers = filterForPrayerTeam(data.prayers);
           }}
         >
           <span>Prayer Team</span></button
@@ -83,7 +117,7 @@
         <button
           class="button"
           on:click={() => {
-            filteredprayers = data.prayers;
+            filteredprayers = filterForAll(data.prayers);
           }}
         >
           <span>All</span>
@@ -142,6 +176,18 @@
     padding: 1rem;
     margin: 1rem 0;
     overflow: hidden;
+    @media print {
+      page-break-inside: avoid;
+      h2 {
+        font-size: 18px;
+      }
+      h3 {
+        font-size: 16px;
+      }
+      p {
+        font-size: 14px;
+      }
+    }
   }
   .staffOnly {
     display: flex;
@@ -156,6 +202,10 @@
     right: -35px;
     transform: rotate(45deg);
     font-weight: 700;
+    @media print {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
   }
   .filterButtonContainer {
     display: grid;
@@ -178,6 +228,12 @@
       box-shadow: -6px -6px 10px rgba(235, 235, 235, 0.4),
         6px 6px 10px rgba(0, 0, 0, 0.05);
       border: 2px inset rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .filterButton {
+    @media print {
+      display: none;
     }
   }
 </style>
